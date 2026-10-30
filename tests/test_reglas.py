@@ -64,7 +64,6 @@ def test_limite_de_dias_regular(archivo_json):
 
 
 # Esperado: prioritario y presente en "Atender primero" (preferente, 3 días)
-@pytest.mark.xfail(reason="El preferente con 3 días cuenta como prioritario pero no aparece en 'Atender primero'")
 def test_limite_de_dias_preferente(archivo_json):
     res = ejecutar(archivo_json([pedido("P-1", "preferente", "pendiente", 3, 40000)]))
     assert res["prioritarios"] == 1
@@ -93,7 +92,6 @@ def test_coleccion_vacia(archivo_json):
 
 
 # Esperado: [P-300, P-301] (empate en días se desempata por id ascendente)
-@pytest.mark.xfail(reason="El empate en días no se desempata por id ascendente")
 def test_empate_en_dias(archivo_json):
     res = ejecutar(archivo_json([
         pedido("P-300", "regular", "pendiente", 5, 40000),
@@ -102,8 +100,7 @@ def test_empate_en_dias(archivo_json):
     assert res["atencion"] == ["P-300", "P-301"]
 
 
-# Caso propio 1 — Esperado: cada gestor 1 abierto · $40.000 · 0 prioritarios · []
-@pytest.mark.xfail(reason="Los gestores comparten estado: el segundo acumula los pedidos del primero")
+# Caso propio 1 - Esperado: cada gestor 1 abierto . $40.000 . 0 prioritarios . []
 def test_dos_gestores_independientes(archivo_json):
     ruta = archivo_json([pedido("P-1", "regular", "pendiente", 1, 40000)])
     primero = ejecutar(ruta)
@@ -112,7 +109,7 @@ def test_dos_gestores_independientes(archivo_json):
         assert (res["abiertos"], res["monto"], res["prioritarios"], res["atencion"]) == (1, 40000, 0, [])
 
 
-# Caso propio 2 — Esperado: 2 abiertos · $100.000 · regular $40.000 · preferente $60.000
+# Caso propio 2 - Esperado: 2 abiertos - $100.000 - regular $40.000 - preferente $60.000
 def test_montos_por_tipo(archivo_json):
     res = ejecutar(archivo_json([
         pedido("P-1", "regular", "pendiente", 1, 40000),
