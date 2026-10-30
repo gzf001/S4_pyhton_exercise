@@ -1,4 +1,3 @@
-import json
 from functools import reduce
 
 from modelos.cliente import Cliente
@@ -20,9 +19,9 @@ class GestorPedidos:
         self.prioritarios = 0
         self.por_tipo = {}
 
-    def cargar(self, archivo):
-        f = open(archivo, encoding="utf-8")
-        datos = json.load(f)
+    # construye los pedidos a partir de datos ya leídos (la lectura de archivo
+    # ocurre en main.py; esta función no hace I/O)
+    def cargar(self, datos):
         for d in datos:
             try:
                 items = tuple(Item(it[0], it[1], it[2]) for it in d["items"])
@@ -38,10 +37,7 @@ class GestorPedidos:
         self.monto = sum(map(reglas.monto, abiertos))
         self.por_tipo = reduce(_acumular_monto_por_tipo, abiertos, {})
 
-        prioritarios = list(filter(reglas.es_prioritario, abiertos))
-        self.prioritarios = len(prioritarios)
-        for p in prioritarios:
-            print("  [!] Pedido", p.id, "es prioritario")
+        self.prioritarios = len(list(filter(reglas.es_prioritario, abiertos)))
 
     def calcular_descuento(self, p, porcentaje):
         return reglas.monto(p) * porcentaje / 100

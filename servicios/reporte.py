@@ -10,11 +10,15 @@ class Reporte:
         prioritarios = filter(reglas.es_prioritario, abiertos)
         return sorted(prioritarios, key=lambda p: (-p.dias, p.id))
 
-    def imprimir(self):
-        print("===== REPORTE DE PEDIDOS =====")
-        print("Pedidos abiertos:", self.gestor.abiertos)
-        print("Monto abierto:", self.gestor.monto)
-        print("Pedidos prioritarios:", self.gestor.prioritarios)
-        print("Atender primero:", [p.id for p in self.lista_atencion()])
+    # construye el texto del reporte; no imprime ni hace I/O
+    def formato(self):
+        atencion = self.lista_atencion()
+        lineas = [f"  [!] Pedido {p.id} es prioritario" for p in atencion]
+        lineas.append("===== REPORTE DE PEDIDOS =====")
+        lineas.append(f"Pedidos abiertos: {self.gestor.abiertos}")
+        lineas.append(f"Monto abierto: {self.gestor.monto}")
+        lineas.append(f"Pedidos prioritarios: {self.gestor.prioritarios}")
+        lineas.append(f"Atender primero: {[p.id for p in atencion]}")
         for t in self.gestor.por_tipo:
-            print("Monto", t + ":", self.gestor.por_tipo[t])
+            lineas.append(f"Monto {t}: {self.gestor.por_tipo[t]}")
+        return "\n".join(lineas)

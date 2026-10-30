@@ -13,8 +13,10 @@ def pedido(id, tipo, estado, dias, monto):
             "dias": dias, "items": [["Producto", 1, monto]]}
 
 def ejecutar(ruta):
+    with open(ruta, encoding="utf-8") as f:
+        datos = json.load(f)
     g = GestorPedidos()
-    g.cargar(ruta)
+    g.cargar(datos)
     g.procesar()
     r = Reporte(g)
     return {
