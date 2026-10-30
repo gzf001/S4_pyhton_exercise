@@ -9,6 +9,11 @@ def es_abierto(pedido):
     return pedido.estado in ESTADOS_ABIERTOS
 
 
-def es_prioritario(pedido):
-    limite_dias = DIAS_PREFERENTE if pedido.cliente.es_preferente() else DIAS_REGULAR
-    return monto(pedido) >= UMBRAL_MONTO or pedido.dias >= limite_dias
+def crear_regla_prioridad(umbral_monto, dias_regular, dias_preferente):
+    def regla(pedido):
+        limite_dias = dias_preferente if pedido.cliente.es_preferente() else dias_regular
+        return monto(pedido) >= umbral_monto or pedido.dias >= limite_dias
+    return regla
+
+
+es_prioritario = crear_regla_prioridad(UMBRAL_MONTO, DIAS_REGULAR, DIAS_PREFERENTE)
