@@ -1,3 +1,5 @@
+"""Formatea el estado de un GestorPedidos como texto. No hace I/O."""
+
 from servicios import reglas
 
 
@@ -6,12 +8,17 @@ class Reporte:
         self.gestor = gestor
 
     def lista_atencion(self):
+        """Pedidos abiertos y prioritarios, listos para "Atender primero".
+
+        Orden: más días de espera primero; en caso de empate, por id
+        ascendente.
+        """
         abiertos = filter(reglas.es_abierto, self.gestor.pedidos)
         prioritarios = filter(reglas.es_prioritario, abiertos)
         return sorted(prioritarios, key=lambda p: (-p.dias, p.id))
 
-    # construye el texto del reporte; no imprime ni hace I/O
     def formato(self):
+        """Retorna el texto completo del reporte (no imprime ni hace I/O)."""
         atencion = self.lista_atencion()
         lineas = [f"  [!] Pedido {p.id} es prioritario" for p in atencion]
         lineas.append("===== REPORTE DE PEDIDOS =====")
