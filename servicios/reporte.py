@@ -6,8 +6,8 @@ class Reporte:
         self.gestor = gestor
 
     def lista_atencion(self):
-        abiertos = [p for p in self.gestor.pedidos if reglas.es_abierto(p)]
-        prioritarios = [p for p in abiertos if reglas.es_prioritario(p)]
+        abiertos = filter(reglas.es_abierto, self.gestor.pedidos)
+        prioritarios = filter(reglas.es_prioritario, abiertos)
         return sorted(prioritarios, key=lambda p: (-p.dias, p.id))
 
     def imprimir(self):

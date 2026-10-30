@@ -1,8 +1,15 @@
 import json
+from functools import reduce
+
 from modelos.cliente import Cliente
 from modelos.item import Item
 from modelos.pedido import Pedido
 from servicios import reglas
+
+
+def _acumular_monto_por_tipo(acumulado, pedido):
+    tipo = pedido.cliente.tipo
+    return {**acumulado, tipo: acumulado.get(tipo, 0) + reglas.monto(pedido)}
 
 
 class GestorPedidos:
@@ -26,17 +33,15 @@ class GestorPedidos:
 
     # procesa los pedidos
     def procesar(self):
-        for p in self.pedidos:
-            if reglas.es_abierto(p):
-                self.abiertos += 1
-                self.monto += reglas.monto(p)
-                if p.cliente.tipo in self.por_tipo:
-                    self.por_tipo[p.cliente.tipo] += reglas.monto(p)
-                else:
-                    self.por_tipo[p.cliente.tipo] = reglas.monto(p)
-                if reglas.es_prioritario(p):
-                    self.prioritarios += 1
-                    print("  [!] Pedido", p.id, "es prioritario")
+        abiertos = list(filter(reglas.es_abierto, self.pedidos))
+        self.abiertos = len(abiertos)
+        self.monto = sum(map(reglas.monto, abiertos))
+        self.por_tipo = reduce(_acumular_monto_por_tipo, abiertos, {})
+
+        prioritarios = list(filter(reglas.es_prioritario, abiertos))
+        self.prioritarios = len(prioritarios)
+        for p in prioritarios:
+            print("  [!] Pedido", p.id, "es prioritario")
 
     def calcular_descuento(self, p, porcentaje):
         return reglas.monto(p) * porcentaje / 100
