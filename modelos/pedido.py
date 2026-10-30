@@ -8,7 +8,3 @@ class Pedido:
     estado: str
     dias: int
     items: tuple = field(default_factory=tuple)
-
-    @property
-    def total(self):
-        return sum(item.subtotal for item in self.items)

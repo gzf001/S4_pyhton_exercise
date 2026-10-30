@@ -2,6 +2,7 @@ import json
 from modelos.cliente import Cliente
 from modelos.item import Item
 from modelos.pedido import Pedido
+from servicios import reglas
 
 
 class GestorPedidos:
@@ -26,19 +27,16 @@ class GestorPedidos:
     # procesa los pedidos
     def procesar(self):
         for p in self.pedidos:
-            if p.estado == "pendiente" or p.estado == "en_preparacion":
+            if reglas.es_abierto(p):
                 self.abiertos += 1
-                self.monto += p.total
+                self.monto += reglas.monto(p)
                 if p.cliente.tipo in self.por_tipo:
-                    self.por_tipo[p.cliente.tipo] += p.total
+                    self.por_tipo[p.cliente.tipo] += reglas.monto(p)
                 else:
-                    self.por_tipo[p.cliente.tipo] = p.total
-                limite = 5
-                if p.cliente.es_preferente():
-                    limite = 3
-                if p.total >= 150000 or p.dias >= limite:
+                    self.por_tipo[p.cliente.tipo] = reglas.monto(p)
+                if reglas.es_prioritario(p):
                     self.prioritarios += 1
                     print("  [!] Pedido", p.id, "es prioritario")
 
     def calcular_descuento(self, p, porcentaje):
-        return p.total * porcentaje / 100
+        return reglas.monto(p) * porcentaje / 100
